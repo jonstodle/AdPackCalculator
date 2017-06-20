@@ -22,6 +22,7 @@ namespace AdPackCalculator
     /// </summary>
     public partial class AdPackInfoListViewItem : UserControl
     {
+        public static string EditContract = nameof(EditContract);
         public static string RemoveContract = nameof(RemoveContract);
 
 
@@ -30,19 +31,18 @@ namespace AdPackCalculator
         {
             InitializeComponent();
 
-            //Observable.FromEventPattern(this, nameof(DataContextChanged))
-            //    .Select(_ => AdPackInfo)
-            //    .Where(api => api != null)
-            //    .Subscribe(api =>
-            //    {
-            //        AmountTextBlock.Text = $"{api.Amount} x";
-            //        DateTextBlock.Text = api.BuyDate.ToString("d");
-            //    });
-
             Observable.Merge(
                     Observable.FromEventPattern(this, nameof(MouseEnter)).Select(_ => Visibility.Visible),
                     Observable.FromEventPattern(this, nameof(MouseLeave)).Select(_ => Visibility.Collapsed))
-                .Subscribe(visibility => RemoveButton.Visibility = visibility);
+                .Subscribe(visibility =>
+                {
+                    EditButton.Visibility = visibility;
+                    RemoveButton.Visibility = visibility;
+                });
+
+            MessageBus.Current.RegisterMessageSource(
+                Observable.FromEventPattern(EditButton, nameof(Button.Click)).Select(_ => AdPackInfo).Where(api => api != null),
+                EditContract);
 
             MessageBus.Current.RegisterMessageSource(
                 Observable.FromEventPattern(RemoveButton, nameof(Button.Click)).Select(_ => AdPackInfo).Where(api => api != null),

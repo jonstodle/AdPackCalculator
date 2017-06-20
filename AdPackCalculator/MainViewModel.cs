@@ -44,6 +44,14 @@ namespace AdPackCalculator
                     AddAmount = "";
                 });
 
+            MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.EditContract)
+                .Subscribe(adPackInfo =>
+                {
+                    AddDate = adPackInfo.BuyDate.ToString("d");
+                    AddAmount = adPackInfo.Amount.ToString();
+                    AdPackInfos.Remove(adPackInfo);
+                });
+
             MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.RemoveContract)
                 .Subscribe(adPackInfo => AdPackInfos.Remove(adPackInfo));
         }
