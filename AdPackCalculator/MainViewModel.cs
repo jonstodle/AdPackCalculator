@@ -1,6 +1,8 @@
-﻿using ReactiveUI;
+﻿using Newtonsoft.Json;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -14,6 +16,15 @@ namespace AdPackCalculator
     {
         public MainViewModel()
         {
+            if (File.Exists(_stateFilePath))
+            {
+                var stateObject = JsonConvert.DeserializeObject<StateObject>(File.ReadAllText(_stateFilePath));
+                AddDate = stateObject.AddDate;
+                AddAmount = stateObject.AddAmount;
+                AdPackInfos.AddRange(stateObject.AdPackInfos);
+                CalculateDate = stateObject.CalculateDate;
+            }
+
             AddAdPackInfoItem = ReactiveCommand.Create<Unit, AdPackInfo>(
                 _ => AddAdPackInfo,
                 this.WhenAnyValue(vm => vm.AddAdPackInfo).Select(adPackInfo => adPackInfo != null));
@@ -54,6 +65,22 @@ namespace AdPackCalculator
 
             MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.RemoveContract)
                 .Subscribe(adPackInfo => AdPackInfos.Remove(adPackInfo));
+
+            Observable.CombineLatest(
+                    this.WhenAnyValue(
+                        vm => vm.AddDate,
+                        vm => vm.AddAmount,
+                        vm => vm.CalculateDate),
+                    this.WhenAnyObservable(vm => vm.AdPackInfos.CountChanged).Select(_ => AdPackInfos).StartWith(Enumerable.Empty<AdPackInfo>()),
+                    (props, apis) => new StateObject
+                    {
+                        AddDate = props.Item1,
+                        AddAmount = props.Item2,
+                        CalculateDate = props.Item3,
+                        AdPackInfos = apis
+                    })
+                .Throttle(TimeSpan.FromSeconds(2))
+                .Subscribe(stateObject => File.WriteAllText(_stateFilePath, JsonConvert.SerializeObject(stateObject)));
         }
 
 
@@ -73,6 +100,7 @@ namespace AdPackCalculator
 
         private readonly ObservableAsPropertyHelper<AdPackInfo> _addAdPackInfo;
         private readonly ObservableAsPropertyHelper<int> _calculatedAmount;
+        private string _stateFilePath => Path.Combine(App.AppDataFolderPath, "data.json");
         private string _addDate;
         private string _addAmount;
         private string _calculateDate;
