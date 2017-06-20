@@ -14,7 +14,7 @@ namespace AdPackCalculator
     {
         public MainViewModel()
         {
-            AddAdPacks = ReactiveCommand.Create<Unit, AdPackInfo>(
+            AddAdPackInfoItem = ReactiveCommand.Create<Unit, AdPackInfo>(
                 _ => AddAdPackInfo,
                 this.WhenAnyValue(vm => vm.AddAdPackInfo).Select(adPackInfo => adPackInfo != null));
 
@@ -38,7 +38,7 @@ namespace AdPackCalculator
 
             this.WhenActivated(d =>
             {
-                AddAdPacks
+                AddAdPackInfoItem
                     .Subscribe(adPackInfo =>
                     {
                         AdPackInfos.Add(adPackInfo);
@@ -55,10 +55,10 @@ namespace AdPackCalculator
 
 
 
-        public ReactiveCommand<Unit, AdPackInfo> AddAdPacks { get; }
+        public ReactiveCommand<Unit, AdPackInfo> AddAdPackInfoItem { get; }
         public ReactiveCommand<AdPackInfo, AdPackInfo> RemoveAdPack { get; }
         public ReactiveCommand<Unit, int> Calculate { get; }
-        public AdPackInfo AddAdPackInfo => _addAdPackInfo.Value;
+        public AdPackInfo AddAdPackInfo => _addAdPackInfo?.Value;
         public int CalculatedAmount => _calculatedAmount.Value;
         public ReactiveList<AdPackInfo> AdPackInfos { get; } = new ReactiveList<AdPackInfo>();
         public string AddDate { get => _addDate; set => this.RaiseAndSetIfChanged(ref _addDate, value); }
