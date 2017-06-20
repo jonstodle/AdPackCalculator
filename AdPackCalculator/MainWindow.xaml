@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdPackCalculator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="Ad Pack Calculator" Height="350" Width="525"
 		Padding="2">
 	<Window.Resources>
 		<Style x:Key="HeaderTextBlock" TargetType="TextBlock">
@@ -72,5 +72,7 @@
 			<Button x:Name="CalculateButton" Content="Calculate" Grid.Row="1" Grid.Column="1" Margin="2,0,2,2"/>
 			<TextBlock x:Name="CalculateResultTextBlock" TextAlignment="Center" FontWeight="Bold" Grid.Row="1" Grid.Column="2"/>
 		</Grid>
+
+		<TextBlock Text="By @jonstodle" Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="10" Opacity=".5" Margin="2"/>
 	</Grid>
 </Window>
