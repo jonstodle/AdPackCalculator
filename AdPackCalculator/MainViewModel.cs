@@ -16,21 +16,12 @@ namespace AdPackCalculator
     {
         public MainViewModel()
         {
-            if (File.Exists(_stateFilePath))
-            {
-                var stateObject = JsonConvert.DeserializeObject<StateObject>(File.ReadAllText(_stateFilePath));
-                AddDate = stateObject.AddDate;
-                AddAmount = stateObject.AddAmount;
-                AdPackInfos.AddRange(stateObject.AdPackInfos);
-                CalculateDate = stateObject.CalculateDate;
-            }
-
             AddAdPackInfoItem = ReactiveCommand.Create<Unit, AdPackInfo>(
                 _ => AddAdPackInfo,
                 this.WhenAnyValue(vm => vm.AddAdPackInfo).Select(adPackInfo => adPackInfo != null));
 
-            Calculate = ReactiveCommand.Create<Unit, int>(
-                _ => 0,
+            Calculate = ReactiveCommand.CreateFromObservable<Unit, int>(
+                _ => CalculateImpl(AdPackInfos, DateTimeOffset.Parse(CalculateDate)),
                 Observable.CombineLatest(
                         this.WhenAnyValue(vm => vm.CalculateDate, date => DateTimeOffset.TryParse(date, out DateTimeOffset _)),
                         this.WhenAnyObservable(vm => vm.AdPackInfos.CountChanged).Select(count => count > 0),
@@ -39,7 +30,7 @@ namespace AdPackCalculator
             _addAdPackInfo = this.WhenAnyValue(
                     vm => vm.AddDate,
                     vm => vm.AddAmount,
-                    (date, amount) => DateTimeOffset.TryParse(date, out DateTimeOffset dto) && int.TryParse(amount, out int amnt)
+                    (date, amount) => DateTimeOffset.TryParse(date, out DateTimeOffset dto) && int.TryParse(amount, out int amnt) && amnt > 0
                         ? new AdPackInfo { BuyDate = dto, Amount = amnt }
                         : null)
                 .ToProperty(this, vm => vm.AddAdPackInfo);
@@ -81,6 +72,16 @@ namespace AdPackCalculator
                     })
                 .Throttle(TimeSpan.FromSeconds(2))
                 .Subscribe(stateObject => File.WriteAllText(_stateFilePath, JsonConvert.SerializeObject(stateObject)));
+
+
+            if (File.Exists(_stateFilePath))
+            {
+                var stateObject = JsonConvert.DeserializeObject<StateObject>(File.ReadAllText(_stateFilePath));
+                AddDate = stateObject.AddDate;
+                AddAmount = stateObject.AddAmount;
+                AdPackInfos.AddRange(stateObject.AdPackInfos);
+                CalculateDate = stateObject.CalculateDate;
+            }
         }
 
 
@@ -95,6 +96,44 @@ namespace AdPackCalculator
         public string AddAmount { get => _addAmount; set => this.RaiseAndSetIfChanged(ref _addAmount, value); }
         public string CalculateDate { get => _calculateDate; set => this.RaiseAndSetIfChanged(ref _calculateDate, value); }
         public ViewModelActivator Activator => new ViewModelActivator();
+
+
+
+        private IObservable<int> CalculateImpl(IEnumerable<AdPackInfo> adPackInfos, DateTimeOffset endDate) => Observable.Start(() =>
+        {
+            var adPacks = adPackInfos
+                .SelectMany(adPackInfo => Enumerable.Range(1, adPackInfo.Amount).Select(_ => new AdPack(adPackInfo)))
+                .OrderBy(adPack => adPack.BuyDate)
+                .ToList();
+            var currentDate = adPacks[0].BuyDate.Date.AddDays(1);
+            var money = 0d;
+
+            while (currentDate < endDate.AddDays(1))
+            {
+                var adPacksToRemove = new List<AdPack>();
+                var adPacksToEvaluate = adPacks.Where(adPack => adPack.BuyDate.Date < currentDate.Date).ToList();
+
+                for (int i = adPacksToEvaluate.Count - 1; i >= 0; i--)
+                {
+                    var adPack = adPacksToEvaluate[i];
+                    adPack.TakeTicket();
+                    adPacksToEvaluate.Remove(adPack);
+                    money += .5;
+                }
+
+                while(money > 50)
+                {
+                    adPacks.Add(new AdPack { BuyDate = currentDate });
+                    money -= 50;
+                }
+
+                foreach (var adPack in adPacksToRemove) adPacks.Remove(adPack);
+
+                currentDate = currentDate.Date.AddDays(1);
+            }
+
+            return adPacks.Count;
+        }, RxApp.TaskpoolScheduler);
 
 
 

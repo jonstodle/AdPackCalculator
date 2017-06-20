@@ -8,6 +8,12 @@ namespace AdPackCalculator
 {
     public class AdPack
     {
+        public AdPack() { }
+        public AdPack(AdPackInfo adPackInfo)
+        {
+            BuyDate = adPackInfo.BuyDate;
+        }
+
         public DateTimeOffset BuyDate { get; set; }
         public int Tickets { get; set; } = 120;
 
