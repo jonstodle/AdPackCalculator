@@ -30,14 +30,14 @@ namespace AdPackCalculator
         {
             InitializeComponent();
 
-            Observable.FromEventPattern(this, nameof(DataContextChanged))
-                .Select(_ => AdPackInfo)
-                .Where(api => api != null)
-                .Subscribe(api =>
-                {
-                    AmountTextBlock.Text = $"{api.Amount} x";
-                    DateTextBlock.Text = api.BuyDate.ToString("d");
-                });
+            //Observable.FromEventPattern(this, nameof(DataContextChanged))
+            //    .Select(_ => AdPackInfo)
+            //    .Where(api => api != null)
+            //    .Subscribe(api =>
+            //    {
+            //        AmountTextBlock.Text = $"{api.Amount} x";
+            //        DateTextBlock.Text = api.BuyDate.ToString("d");
+            //    });
 
             Observable.Merge(
                     Observable.FromEventPattern(this, nameof(MouseEnter)).Select(_ => Visibility.Visible),

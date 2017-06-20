@@ -36,21 +36,16 @@ namespace AdPackCalculator
             _calculatedAmount = Calculate
                 .ToProperty(this, vm => vm.CalculatedAmount);
 
-            this.WhenActivated(d =>
-            {
-                AddAdPackInfoItem
-                    .Subscribe(adPackInfo =>
-                    {
-                        AdPackInfos.Add(adPackInfo);
-                        AddDate = "";
-                        AddAmount = "";
-                    })
-                    .DisposeWith(d);
+            AddAdPackInfoItem
+                .Subscribe(adPackInfo =>
+                {
+                    AdPackInfos.Add(adPackInfo);
+                    AddDate = "";
+                    AddAmount = "";
+                });
 
-                MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.RemoveContract)
-                    .Subscribe(adPackInfo => AdPackInfos.Remove(adPackInfo))
-                    .DisposeWith(d);
-            });
+            MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.RemoveContract)
+                .Subscribe(adPackInfo => AdPackInfos.Remove(adPackInfo));
         }
 
 

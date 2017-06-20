@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:AdPackCalculator"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="300"
+			 Background="Transparent"
 			 Padding="5">
     <Grid>
 		<Grid.ColumnDefinitions>
@@ -14,9 +15,9 @@
 			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 
-		<TextBlock x:Name="AmountTextBlock" Margin="2"/>
+		<TextBlock Text="{Binding Amount, StringFormat={}{0} x}" VerticalAlignment="Center" Margin="2,2,10,2"/>
 
-		<TextBlock x:Name="DateTextBlock" FontSize="16" FontWeight="Bold" Grid.Column="1" Margin="2"/>
+		<TextBlock Text="{Binding BuyDate, StringFormat={}{0:d}}" FontSize="16" FontWeight="Bold" Grid.Column="1" Margin="2"/>
 
 		<Button x:Name="RemoveButton" Content="Remove" Visibility="Collapsed" Grid.Column="2" Padding="10,1" Margin="2"/>
 	</Grid>
