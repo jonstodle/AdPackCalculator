@@ -18,8 +18,6 @@ namespace AdPackCalculator
                 _ => AddAdPackInfo,
                 this.WhenAnyValue(vm => vm.AddAdPackInfo).Select(adPackInfo => adPackInfo != null));
 
-            RemoveAdPack = ReactiveCommand.Create<AdPackInfo, AdPackInfo>(adPack => adPack ?? throw new NullReferenceException());
-
             Calculate = ReactiveCommand.Create<Unit, int>(
                 _ => 0,
                 Observable.CombineLatest(
@@ -49,7 +47,7 @@ namespace AdPackCalculator
                     })
                     .DisposeWith(d);
 
-                RemoveAdPack
+                MessageBus.Current.Listen<AdPackInfo>(AdPackInfoListViewItem.RemoveContract)
                     .Subscribe(adPackInfo => AdPackInfos.Remove(adPackInfo))
                     .DisposeWith(d);
             });

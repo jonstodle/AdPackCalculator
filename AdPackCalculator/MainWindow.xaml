@@ -42,7 +42,11 @@
 		</Grid>
 
 		<ListView Grid.Row="1" Margin="2">
-			
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<local:AdPackInfoListViewItem/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
 		</ListView>
 
 		<Grid HorizontalAlignment="Right" Grid.Row="2">
