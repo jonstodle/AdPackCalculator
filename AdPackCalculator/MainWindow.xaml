@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AdPackCalculator"
         mc:Ignorable="d"
-        Title="Ad Pack Calculator" Height="350" Width="525" Icon="Assets/Icon-16.png"
+        Title="Ad Pack Calculator" Height="500" Width="500" Icon="Assets/Icon-16.png"
 		Padding="2">
 	<Window.Resources>
 		<Style x:Key="HeaderTextBlock" TargetType="TextBlock">
