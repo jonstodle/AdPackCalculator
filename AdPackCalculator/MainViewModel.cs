@@ -159,7 +159,7 @@ namespace AdPackCalculator
                 {
                     var adPack = adPacksToEvaluate[i];
                     adPack.TakeTicket();
-                    adPacksToEvaluate.Remove(adPack);
+                    if(adPack.Tickets == 0) adPacksToEvaluate.Remove(adPack);
                     money += settings.AdPackIncomePerDay - reserveAmount;
                 }
 
