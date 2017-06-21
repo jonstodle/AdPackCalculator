@@ -37,7 +37,7 @@
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
-			<Button x:Name="SettingsButton" Content="Settings" Grid.Row="1" HorizontalAlignment="Left"/>
+			<Button x:Name="SettingsButton" Content="Settings" Grid.Row="1" HorizontalAlignment="Left" Margin="2"/>
 
 			<TextBlock Text="Date" Style="{StaticResource HeaderTextBlock}" Grid.Column="1"/>
 			<TextBlock Text="Amount" Style="{StaticResource HeaderTextBlock}" Grid.Column="2"/>
