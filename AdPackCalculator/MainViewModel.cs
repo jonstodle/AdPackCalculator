@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -100,6 +101,13 @@ namespace AdPackCalculator
                 .Throttle(TimeSpan.FromSeconds(2))
                 .Subscribe(stateObject => File.WriteAllText(_stateFilePath, JsonConvert.SerializeObject(stateObject)));
 
+            Observable.Merge(
+                    AddAdPackInfoItem.ThrownExceptions,
+                    Calculate.ThrownExceptions,
+                    SaveSettings.ThrownExceptions)
+                .Select(ex => new AlertInfo(AlertType.Error, "An error occured", string.Join(Environment.NewLine, "The following error message was generated:", "", ex.Message)))
+                .Subscribe(_alerts);
+
             
             AddDate = _state.AddDate;
             AddAmount = _state.AddAmount;
@@ -114,12 +122,12 @@ namespace AdPackCalculator
 
 
         public ReactiveCommand<Unit, AdPackInfo> AddAdPackInfoItem { get; }
-        public ReactiveCommand<AdPackInfo, AdPackInfo> RemoveAdPack { get; }
         public ReactiveCommand<Unit, int> Calculate { get; }
         public ReactiveCommand<Unit, SettingsObject> SaveSettings { get; }
         public AdPackInfo AddAdPackInfo => _addAdPackInfo?.Value;
         public int CalculatedAmount => _calculatedAmount.Value;
         public SettingsObject SettingsToSave => _settingsToSave.Value;
+        public IObservable<AlertInfo> Alerts => _alerts;
         public ReactiveList<AdPackInfo> AdPackInfos { get; } = new ReactiveList<AdPackInfo>();
         public string AddDate { get => _addDate; set => this.RaiseAndSetIfChanged(ref _addDate, value); }
         public string AddAmount { get => _addAmount; set => this.RaiseAndSetIfChanged(ref _addAmount, value); }
@@ -174,6 +182,7 @@ namespace AdPackCalculator
         private readonly ObservableAsPropertyHelper<AdPackInfo> _addAdPackInfo;
         private readonly ObservableAsPropertyHelper<int> _calculatedAmount;
         private readonly ObservableAsPropertyHelper<SettingsObject> _settingsToSave;
+        private readonly Subject<AlertInfo> _alerts = new Subject<AlertInfo>();
         private string _stateFilePath => Path.Combine(App.AppDataFolderPath, "data.json");
         private string _addDate;
         private string _addAmount;
@@ -182,5 +191,10 @@ namespace AdPackCalculator
         private string _adPackDuration;
         private string _adPackIncomePerDay;
         private string _reservePercentage;
+    }
+
+    public enum AlertType
+    {
+        Info, Success, Warning, Error
     }
 }

@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AlertInfo.cs" />
     <Compile Include="SettingsObject.cs" />
     <Compile Include="StateObject.cs" />
     <Page Include="AdPackInfoListViewItem.xaml">

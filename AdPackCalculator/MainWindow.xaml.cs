@@ -60,6 +60,23 @@ namespace AdPackCalculator
                         ViewModel.SaveSettings.Select(_ => Visibility.Collapsed))
                     .Subscribe(visibility => OverlayBorder.Visibility = visibility)
                     .DisposeWith(d);
+
+                ViewModel.Alerts
+                    .Do(alert =>
+                    {
+                        var icon = MessageBoxImage.None;
+                        switch (alert.Type)
+                        {
+                            case AlertType.Info: icon = MessageBoxImage.Information; break;
+                            case AlertType.Warning: icon = MessageBoxImage.Warning; break;
+                            case AlertType.Error: icon = MessageBoxImage.Error; break;
+                            case AlertType.Success:
+                            default: break;
+                        }
+                        MessageBox.Show(alert.Message, alert.Caption, MessageBoxButton.OK, icon);
+                    })
+                    .Subscribe()
+                    .DisposeWith(d);
             });
         }
 
