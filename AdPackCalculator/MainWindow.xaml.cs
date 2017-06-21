@@ -39,6 +39,7 @@ namespace AdPackCalculator
 
                 this.OneWayBind(ViewModel, vm => vm.AdPackInfos, v => v.AdPackInfosListView.ItemsSource).DisposeWith(d);
 
+                this.OneWayBind(ViewModel, vm => vm.AdPacksCount, v => v.AdPacksCountTextBlock.Text).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.CalculateDate, v => v.CalculateDateTextBox.Text).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.CalculateDate, v => v.CalculateDateTextBox.Background, date => InvalidInputToBrush(DateTimeOffset.TryParse(date, out DateTimeOffset _))).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.Calculate, v => v.CalculateButton).DisposeWith(d);

@@ -60,6 +60,7 @@
 		<Grid HorizontalAlignment="Right" Grid.Row="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="100"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="100"/>
 			</Grid.ColumnDefinitions>
@@ -68,12 +69,14 @@
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
-			<TextBlock Text="Date" Style="{StaticResource HeaderTextBlock}"/>
-			<TextBlock Text="Result" Style="{StaticResource HeaderTextBlock}" Grid.Column="2"/>
+			<TextBlock Text="Ad Packs" Style="{StaticResource HeaderTextBlock}"/>
+			<TextBlock Text="Date" Style="{StaticResource HeaderTextBlock}" Grid.Column="1"/>
+			<TextBlock Text="Result" Style="{StaticResource HeaderTextBlock}" Grid.Column="3"/>
 
-			<TextBox x:Name="CalculateDateTextBox" Grid.Row="1"/>
-			<Button x:Name="CalculateButton" Content="Calculate" Grid.Row="1" Grid.Column="1"/>
-			<TextBlock x:Name="CalculateResultTextBlock" TextAlignment="Center" FontWeight="Bold" Grid.Row="1" Grid.Column="2"/>
+			<TextBlock x:Name="AdPacksCountTextBlock" Grid.Row="1"/>
+			<TextBox x:Name="CalculateDateTextBox" Grid.Row="1" Grid.Column="1"/>
+			<Button x:Name="CalculateButton" Content="Calculate" Grid.Row="1" Grid.Column="2"/>
+			<TextBlock x:Name="CalculateResultTextBlock" TextAlignment="Center" FontWeight="Bold" Grid.Row="1" Grid.Column="3"/>
 		</Grid>
 
 		<TextBlock Text="By @jonstodle" Grid.RowSpan="3" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontSize="10" Opacity=".5"/>

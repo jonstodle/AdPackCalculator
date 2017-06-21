@@ -56,6 +56,16 @@ namespace AdPackCalculator
                         : null)
                 .ToProperty(this, vm => vm.AddAdPackInfo);
 
+            var adPackInfosChanges = this.WhenAnyObservable(vm => vm.AdPackInfos.CountChanged)
+                .Select(_ => AdPackInfos)
+                .StartWith(Enumerable.Empty<AdPackInfo>())
+                .Publish()
+                .RefCount();
+
+            _adPacksCount = adPackInfosChanges
+                .Select(adPackInfos => adPackInfos.Sum(adPackInfo => adPackInfo.Amount))
+                .ToProperty(this, vm => vm.AdPacksCount);
+
             _calculatedAmount = Calculate
                 .ToProperty(this, vm => vm.CalculatedAmount);
 
@@ -89,7 +99,7 @@ namespace AdPackCalculator
                         vm => vm.AddAmount,
                         vm => vm.CalculateDate,
                         vm => vm.SettingsToSave),
-                    this.WhenAnyObservable(vm => vm.AdPackInfos.CountChanged).Select(_ => AdPackInfos).StartWith(Enumerable.Empty<AdPackInfo>()),
+                    adPackInfosChanges,
                     (props, apis) => new StateObject
                     {
                         AddDate = props.Item1,
@@ -125,6 +135,7 @@ namespace AdPackCalculator
         public ReactiveCommand<Unit, int> Calculate { get; }
         public ReactiveCommand<Unit, SettingsObject> SaveSettings { get; }
         public AdPackInfo AddAdPackInfo => _addAdPackInfo?.Value;
+        public int AdPacksCount => _adPacksCount.Value;
         public int CalculatedAmount => _calculatedAmount.Value;
         public SettingsObject SettingsToSave => _settingsToSave.Value;
         public IObservable<AlertInfo> Alerts => _alerts;
@@ -181,6 +192,7 @@ namespace AdPackCalculator
 
         private readonly StateObject _state;
         private readonly ObservableAsPropertyHelper<AdPackInfo> _addAdPackInfo;
+        private readonly ObservableAsPropertyHelper<int> _adPacksCount;
         private readonly ObservableAsPropertyHelper<int> _calculatedAmount;
         private readonly ObservableAsPropertyHelper<SettingsObject> _settingsToSave;
         private readonly Subject<AlertInfo> _alerts = new Subject<AlertInfo>();
