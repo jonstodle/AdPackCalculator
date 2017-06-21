@@ -159,7 +159,7 @@ namespace AdPackCalculator
                 .ToList();
             var currentDate = (DateTimeOffset)adPacks[0].BuyDate.Date;
             var money = 0d;
-            var reserveAmount = settings.AdPackIncomePerDay - (settings.ReservePercentage / 100);
+            var reserveAmount = settings.AdPackIncomePerDay * (settings.ReservePercentage / 100);
 
             while (currentDate < endDate.AddDays(1))
             {
