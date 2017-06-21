@@ -18,10 +18,10 @@
 
 		<TextBlock Text="{Binding Amount, StringFormat={}{0} x}" VerticalAlignment="Center" Margin="2,2,10,2"/>
 
-		<TextBlock Text="{Binding BuyDate, StringFormat={}{0:d}}" FontSize="16" FontWeight="Bold" Grid.Column="1" Margin="2"/>
+		<TextBlock Text="{Binding BuyDate, StringFormat={}{0:d}}" VerticalAlignment="Center" FontWeight="Bold" Grid.Column="1" Margin="2"/>
 
-		<Button x:Name="EditButton" Content="Edit" Visibility="Collapsed" Grid.Column="2" Padding="10,1" Margin="2"/>
+		<Button x:Name="EditButton" Content="Edit" IsEnabled="False" Opacity="0" Grid.Column="2" Margin="2"/>
 
-		<Button x:Name="RemoveButton" Content="Remove" Visibility="Collapsed" Grid.Column="3" Padding="10,1" Margin="2"/>
+		<Button x:Name="RemoveButton" Content="Remove" IsEnabled="False" Opacity="0" Grid.Column="3" Margin="2"/>
 	</Grid>
 </UserControl>

@@ -32,12 +32,12 @@ namespace AdPackCalculator
             InitializeComponent();
 
             Observable.Merge(
-                    Observable.FromEventPattern(this, nameof(MouseEnter)).Select(_ => Visibility.Visible),
-                    Observable.FromEventPattern(this, nameof(MouseLeave)).Select(_ => Visibility.Collapsed))
-                .Subscribe(visibility =>
+                    Observable.FromEventPattern(this, nameof(MouseEnter)).Select(_ => true),
+                    Observable.FromEventPattern(this, nameof(MouseLeave)).Select(_ => false))
+                .Subscribe(showButtons =>
                 {
-                    EditButton.Visibility = visibility;
-                    RemoveButton.Visibility = visibility;
+                    EditButton.IsEnabled = RemoveButton.IsEnabled = showButtons;
+                    EditButton.Opacity = RemoveButton.Opacity = showButtons ? 1 : 0;
                 });
 
             MessageBus.Current.RegisterMessageSource(
