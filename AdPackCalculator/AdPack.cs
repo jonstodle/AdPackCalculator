@@ -9,13 +9,19 @@ namespace AdPackCalculator
     public class AdPack
     {
         public AdPack() { }
-        public AdPack(AdPackInfo adPackInfo)
+
+        public AdPack(int duration)
+        {
+            Tickets = duration;
+        }
+
+        public AdPack(AdPackInfo adPackInfo, int duration) : this(duration)
         {
             BuyDate = adPackInfo.BuyDate;
         }
 
         public DateTimeOffset BuyDate { get; set; }
-        public int Tickets { get; set; } = 120;
+        public int Tickets { get; set; }
 
         public void TakeTicket() => Tickets -= 1;
     }

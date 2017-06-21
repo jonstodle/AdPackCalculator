@@ -16,12 +16,15 @@ namespace AdPackCalculator
     {
         public MainViewModel()
         {
+            if (File.Exists(_stateFilePath)) _state = JsonConvert.DeserializeObject<StateObject>(File.ReadAllText(_stateFilePath));
+            else _state = new StateObject();
+
             AddAdPackInfoItem = ReactiveCommand.Create<Unit, AdPackInfo>(
                 _ => AddAdPackInfo,
                 this.WhenAnyValue(vm => vm.AddAdPackInfo).Select(adPackInfo => adPackInfo != null));
 
             Calculate = ReactiveCommand.CreateFromObservable<Unit, int>(
-                _ => CalculateImpl(AdPackInfos, DateTimeOffset.Parse(CalculateDate)),
+                _ => CalculateImpl(AdPackInfos, DateTimeOffset.Parse(CalculateDate), SettingsToSave),
                 Observable.CombineLatest(
                         this.WhenAnyValue(vm => vm.CalculateDate, date => DateTimeOffset.TryParse(date, out DateTimeOffset _)),
                         this.WhenAnyObservable(vm => vm.AdPackInfos.CountChanged).Select(count => count > 0),
@@ -55,7 +58,9 @@ namespace AdPackCalculator
             _calculatedAmount = Calculate
                 .ToProperty(this, vm => vm.CalculatedAmount);
 
-            _settingsToSave = SaveSettings
+            _settingsToSave = Observable.Merge(
+                    SaveSettings,
+                    Observable.Return(_state.Settings))
                 .ToProperty(this, vm => vm.SettingsToSave);
 
             AddAdPackInfoItem
@@ -89,15 +94,13 @@ namespace AdPackCalculator
                         AddDate = props.Item1,
                         AddAmount = props.Item2,
                         CalculateDate = props.Item3,
-                        Settings = props.Item4 ?? new SettingsObject(),
+                        Settings = props.Item4,
                         AdPackInfos = apis
                     })
                 .Throttle(TimeSpan.FromSeconds(2))
                 .Subscribe(stateObject => File.WriteAllText(_stateFilePath, JsonConvert.SerializeObject(stateObject)));
 
-
-            if (File.Exists(_stateFilePath)) _state = JsonConvert.DeserializeObject<StateObject>(File.ReadAllText(_stateFilePath));
-            else _state = new StateObject();
+            
             AddDate = _state.AddDate;
             AddAmount = _state.AddAmount;
             AdPackInfos.AddRange(_state.AdPackInfos);
@@ -129,10 +132,10 @@ namespace AdPackCalculator
 
 
 
-        private IObservable<int> CalculateImpl(IEnumerable<AdPackInfo> adPackInfos, DateTimeOffset endDate) => Observable.Start(() =>
+        private IObservable<int> CalculateImpl(IEnumerable<AdPackInfo> adPackInfos, DateTimeOffset endDate, SettingsObject settings) => Observable.Start(() =>
         {
             var adPacks = adPackInfos
-                .SelectMany(adPackInfo => Enumerable.Range(1, adPackInfo.Amount).Select(_ => new AdPack(adPackInfo)))
+                .SelectMany(adPackInfo => Enumerable.Range(1, adPackInfo.Amount).Select(_ => new AdPack(adPackInfo, settings.AdPackDuration)))
                 .OrderBy(adPack => adPack.BuyDate)
                 .ToList();
             var currentDate = adPacks[0].BuyDate.Date.AddDays(1);
@@ -148,13 +151,13 @@ namespace AdPackCalculator
                     var adPack = adPacksToEvaluate[i];
                     adPack.TakeTicket();
                     adPacksToEvaluate.Remove(adPack);
-                    money += .5;
+                    money += settings.AdPackIncomePerDay * (settings.ReservePercentage / 100);
                 }
 
-                while (money > 50)
+                while (money > settings.AdPackCost)
                 {
                     adPacks.Add(new AdPack { BuyDate = currentDate });
-                    money -= 50;
+                    money -= settings.AdPackCost;
                 }
 
                 foreach (var adPack in adPacksToRemove) adPacks.Remove(adPack);
