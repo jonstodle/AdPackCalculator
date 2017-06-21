@@ -10,7 +10,8 @@ namespace AdPackCalculator
     {
         public string AddDate { get; set; }
         public string AddAmount { get; set; }
-        public IEnumerable<AdPackInfo> AdPackInfos { get; set; }
+        public IEnumerable<AdPackInfo> AdPackInfos { get; set; } = Enumerable.Empty<AdPackInfo>();
         public string CalculateDate { get; set; }
+        public SettingsObject Settings { get; set; } = new SettingsObject();
     }
 }

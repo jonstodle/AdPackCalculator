@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -42,6 +43,23 @@ namespace AdPackCalculator
                 this.OneWayBind(ViewModel, vm => vm.CalculateDate, v => v.CalculateDateTextBox.Background, date => InvalidInputToBrush(DateTimeOffset.TryParse(date, out DateTimeOffset _))).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.Calculate, v => v.CalculateButton).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.CalculatedAmount, v => v.CalculateResultTextBlock.Text).DisposeWith(d);
+
+                this.Bind(ViewModel, vm => vm.AdPackCost, v => v.AdPackCostTextBox.Text).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.AdPackCost, v => v.AdPackCostTextBox.Background, cost => InvalidInputToBrush(double.TryParse(cost, out double _))).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.AdPackDuration, v => v.AdPackDurationTextBox.Text).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.AdPackDuration, v => v.AdPackDurationTextBox.Background, duration => InvalidInputToBrush(int.TryParse(duration, out int _))).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.AdPackIncomePerDay, v => v.AdPackIncomePerDayTextBox.Text).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.AdPackIncomePerDay, v => v.AdPackIncomePerDayTextBox.Background, income => InvalidInputToBrush(double.TryParse(income, out double _))).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.ReservePercentage, v => v.ReservePercentageTextBox.Text).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.ReservePercentage, v => v.ReservePercentageTextBox.Background, percentage => InvalidInputToBrush(double.TryParse(percentage, out double _))).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.SaveSettings, v => v.SaveSettingsButton).DisposeWith(d);
+
+                Observable.Merge(
+                        Observable.FromEventPattern(SettingsButton, nameof(Button.Click)).Select(_ => Visibility.Visible),
+                        Observable.FromEventPattern(CloseSettingsButton, nameof(Button.Click)).Select(_ => Visibility.Collapsed),
+                        ViewModel.SaveSettings.Select(_ => Visibility.Collapsed))
+                    .Subscribe(visibility => OverlayBorder.Visibility = visibility)
+                    .DisposeWith(d);
             });
         }
 
